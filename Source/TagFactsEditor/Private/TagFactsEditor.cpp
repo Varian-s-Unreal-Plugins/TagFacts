@@ -1,4 +1,6 @@
-﻿#include "TagFactsEditor.h"
+﻿// Copyright (C) Varian Daemon 2025. All Rights Reserved.
+
+#include "TagFactsEditor.h"
 
 #include "FFactCustomization.h"
 #include "GameplayTagsManager.h"

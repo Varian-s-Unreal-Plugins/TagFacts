@@ -1,4 +1,6 @@
-﻿#include "CogTagFactsWindow.h"
+﻿// Copyright (C) Varian Daemon 2025. All Rights Reserved.
+
+#include "CogTagFactsWindow.h"
 
 #if COG_INSTALLED && ENABLE_COG
 

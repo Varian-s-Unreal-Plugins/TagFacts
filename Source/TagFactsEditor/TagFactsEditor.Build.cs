@@ -1,4 +1,6 @@
-﻿using UnrealBuildTool;
+﻿// Copyright (C) Varian Daemon 2025. All Rights Reserved.
+
+using UnrealBuildTool;
 
 public class TagFactsEditor : ModuleRules
 {
