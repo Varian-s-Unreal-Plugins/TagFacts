@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Copyright (C) Varian Daemon 2025. All Rights Reserved.
 
 #pragma once
 
@@ -9,10 +9,13 @@
 UENUM(BlueprintType)
 enum EFactComparator
 {
-	IsTrue, //Is the value greater than 0
+	//Is the value greater than 0
+	IsTrue,
 	IsFactGreaterThan,
 	IsFactLessThan,
 	IsFactEqualTo,
+	//Is the value less or equal to 0?
+	IsFalse
 };
 
 //V: This is unused, remove this?
@@ -44,14 +47,13 @@ FORCEINLINE uint32 GetTypeHash(const FFact& Thing)
 	return FCrc::MemCrc32(&Thing, sizeof(Thing.Tag));
 }
 
-//V: This is unused, remove this?
 USTRUCT(BlueprintType)
 struct FFactCheck
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fact")
-	FFact Fact;
+	FGameplayTag Fact;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fact")
 	TEnumAsByte<EFactComparator> CheckToPerform = IsTrue;
@@ -60,7 +62,7 @@ struct FFactCheck
 	TEnumAsByte<EFactType> Type = Value;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fact", meta = (EditCondition="Type == EFactType::Fact", EditConditionHides))
-	FFact FactToCompare;
+	FGameplayTag FactToCompare;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fact", meta = (EditCondition="Type == EFactType::Value", EditConditionHides))
 	int32 ValueToCompare = 0;

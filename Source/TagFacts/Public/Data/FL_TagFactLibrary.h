@@ -15,6 +15,13 @@ class TAGFACTS_API UFL_TagFactLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
+	/**Compare a facts value against @Value using the selected comparator.
+	 * If the @Comparator is set to @IsTrue or @IsFalse, the value is ignored. */
 	UFUNCTION(Category = "TagFacts|Comparitors", BlueprintCallable, BlueprintPure)
-	static bool CompareFact(FFact Fact, int32 Value, TEnumAsByte<EFactComparator> Comparator);
+	static bool CompareFact(FGameplayTag Fact, TEnumAsByte<EFactComparator> Comparator, int32 Value);
+	
+	/**Compare a facts value against @Value using the selected comparator.
+	 * The @Comparators options @IsTrue and @IsFalse are not supported in this function. Use @CompareFact instead*/
+	UFUNCTION(Category = "TagFacts|Comparitors", BlueprintCallable, BlueprintPure)
+	static bool CompareFactAgainstOtherFact(FGameplayTag Fact, TEnumAsByte<EFactComparator> Comparator, FGameplayTag OtherFact);
 };
