@@ -3,8 +3,11 @@
 
 #include "Core/FactSubSystem.h"
 
+#if AsyncMessageSystem_Enabled
+#include "AsyncMessageSystemBase.h"
+#include "AsyncMessageWorldSubsystem.h"
+#endif
 #include "GameplayTagsManager.h"
-#include "HermesSubsystem.h"
 #include "TagFacts.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -90,15 +93,19 @@ bool UFactSubSystem::AddFact(FFact Fact)
 		UE_LOG(LogTagFacts, Log, TEXT("Fact added: %s with value of %d"), *Fact.Tag.ToString(), Fact.Value)
 		SubSystem->Facts.Add(Fact);
 		SubSystem->FactAdded.Broadcast(Fact);
-
-#if HERMES_INSTALLED
-		UHermesSubsystem* Hermes = UHermesSubsystem::Get();
-		FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
-		Message.GetMutablePtr<FFactMessage>()->Fact = Fact.Tag;
-		Message.GetMutablePtr<FFactMessage>()->OldValue = 0;
-		Message.GetMutablePtr<FFactMessage>()->NewValue = Fact.Value;
-		Hermes->BroadcastMessage(SubSystem, Fact.Tag, Message);
-#endif
+		
+		#if AsyncMessageSystem_Enabled
+		if(TSharedPtr<FAsyncMessageSystemBase> Sys = UAsyncMessageWorldSubsystem::GetSharedMessageSystem(SubSystem->GetWorld()))
+		{
+			FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
+			Message.GetMutablePtr<FFactMessage>()->Fact = Fact.Tag;
+			Message.GetMutablePtr<FFactMessage>()->OldValue = 0;
+			Message.GetMutablePtr<FFactMessage>()->NewValue = Fact.Value;
+			Sys->QueueMessageForBroadcast(
+				FAsyncMessageId(Fact.Tag), 
+				Message);
+		}
+		#endif
 		
 		return true;
 	}
@@ -119,14 +126,20 @@ bool UFactSubSystem::RemoveFact(FGameplayTag Fact)
 		UE_LOG(LogTagFacts, Log, TEXT("Fact removed: %s"), *Fact.ToString())
 		SubSystem->Facts.Remove(FFact({Fact}));
 		SubSystem->FactRemoved.Broadcast(FFact({FoundFact->Tag, FoundFact->Value}));
-		#if HERMES_INSTALLED
-		UHermesSubsystem* Hermes = UHermesSubsystem::Get();
-		FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
-		Message.GetMutablePtr<FFactMessage>()->Fact = Fact;
-		Message.GetMutablePtr<FFactMessage>()->OldValue = FoundFact->Value;
-		Message.GetMutablePtr<FFactMessage>()->NewValue = 0;
-		Hermes->BroadcastMessage(SubSystem, Fact, Message);
+		
+		#if AsyncMessageSystem_Enabled
+		if(TSharedPtr<FAsyncMessageSystemBase> Sys = UAsyncMessageWorldSubsystem::GetSharedMessageSystem(SubSystem->GetWorld()))
+		{
+			FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
+			Message.GetMutablePtr<FFactMessage>()->Fact = Fact;
+			Message.GetMutablePtr<FFactMessage>()->OldValue = FoundFact->Value;
+			Message.GetMutablePtr<FFactMessage>()->NewValue = 0;
+			Sys->QueueMessageForBroadcast(
+				FAsyncMessageId(Fact), 
+				Message);
+		}
 		#endif
+		
 		return true;
 	}
 
@@ -157,13 +170,18 @@ void UFactSubSystem::IncrementFact(const FGameplayTag Fact, const int32 Amount, 
 		FoundFact->Value = FoundFact->Value + Amount;
 		UE_LOG(LogTagFacts, Log, TEXT("Fact incremented: %s - old value: %d - new value: %d"), *Fact.ToString(), OldValue, FoundFact->Value)
 		SubSystem->FactIncremented.Broadcast(FFact({FoundFact->Tag, FoundFact->Value}), OldValue);
-		#if HERMES_INSTALLED
-		UHermesSubsystem* Hermes = UHermesSubsystem::Get();
-		FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
-		Message.GetMutablePtr<FFactMessage>()->Fact = Fact;
-		Message.GetMutablePtr<FFactMessage>()->OldValue = OldValue;
-		Message.GetMutablePtr<FFactMessage>()->NewValue = FoundFact->Value;
-		Hermes->BroadcastMessage(SubSystem, Fact, Message);
+		
+		#if AsyncMessageSystem_Enabled
+		if(TSharedPtr<FAsyncMessageSystemBase> Sys = UAsyncMessageWorldSubsystem::GetSharedMessageSystem(SubSystem->GetWorld()))
+		{
+			FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
+			Message.GetMutablePtr<FFactMessage>()->Fact = Fact;
+			Message.GetMutablePtr<FFactMessage>()->OldValue = OldValue;
+			Message.GetMutablePtr<FFactMessage>()->NewValue = FoundFact->Value;
+			Sys->QueueMessageForBroadcast(
+				FAsyncMessageId(Fact),
+				Message);
+		}
 		#endif
 	}
 	else if(AddIfMissing)
@@ -197,13 +215,17 @@ void UFactSubSystem::DecrementFact(const FGameplayTag Fact, const int32 Amount)
 		}
 		else
 		{
-			#if HERMES_INSTALLED
-			UHermesSubsystem* Hermes = UHermesSubsystem::Get();
-			FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
-			Message.GetMutablePtr<FFactMessage>()->Fact = Fact;
-			Message.GetMutablePtr<FFactMessage>()->OldValue = OldValue;
-			Message.GetMutablePtr<FFactMessage>()->NewValue = FoundFact->Value;
-			Hermes->BroadcastMessage(SubSystem, Fact, Message);
+			#if AsyncMessageSystem_Enabled
+			if(TSharedPtr<FAsyncMessageSystemBase> Sys = UAsyncMessageWorldSubsystem::GetSharedMessageSystem(SubSystem->GetWorld()))
+			{
+				FInstancedStruct Message = FInstancedStruct::Make(FFactMessage());
+				Message.GetMutablePtr<FFactMessage>()->Fact = Fact;
+				Message.GetMutablePtr<FFactMessage>()->OldValue = OldValue;
+				Message.GetMutablePtr<FFactMessage>()->NewValue = FoundFact->Value;
+				Sys->QueueMessageForBroadcast(
+					FAsyncMessageId(Fact), 
+					Message);
+			}
 			#endif
 		}
 	}

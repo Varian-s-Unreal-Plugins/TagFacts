@@ -13,7 +13,7 @@ public class TagFacts : ModuleRules
 		string PluginPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../"));
 
 		//Check if the Cog plugin exists
-		if (Directory.Exists(Path.Combine(PluginPath, "Cog")))
+		if(Plugins.GetPlugin("Cog") != null)
 		{
 			PublicDefinitions.Add("COG_INSTALLED=1");
 			PublicDependencyModuleNames.Add("CogCommon");
@@ -35,14 +35,14 @@ public class TagFacts : ModuleRules
 		}
 		
 		//Check if the Hermes plugin exists
-		if (Directory.Exists(Path.Combine(PluginPath, "HermesCommunications")))
+		if(Plugins.GetPlugin("AsyncMessageSystem") != null)
 		{
-			PublicDefinitions.Add("HERMES_INSTALLED=1");
-			PublicDependencyModuleNames.Add("HermesCommunications");
+			PublicDefinitions.Add("AsyncMessageSystem_Enabled=1");
+			PublicDependencyModuleNames.Add("AsyncMessageSystem");
 		}
 		else
 		{
-			PublicDefinitions.Add("HERMES_INSTALLED=0");
+			PublicDefinitions.Add("AsyncMessageSystem_Enabled=0");
 		}
 		
 		PublicIncludePaths.AddRange(
