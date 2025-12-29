@@ -92,7 +92,7 @@ public:
 
 	/**Not advised to be used. This will forcibly set the fact value.*/
 	UFUNCTION(Category = "Fact System", BlueprintCallable)
-	static bool SetFactValue(FFact Fact, bool AddIfMissing = false);
+	static bool SetFactValue(FFact Fact, bool AddIfMissing = true);
 
 	/**Check the fact array and find out if the tag can be found.*/
 	UFUNCTION(Category = "Fact System", BlueprintCallable, BlueprintPure)

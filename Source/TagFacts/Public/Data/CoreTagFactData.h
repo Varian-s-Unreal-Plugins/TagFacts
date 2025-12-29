@@ -48,7 +48,7 @@ FORCEINLINE uint32 GetTypeHash(const FFact& Thing)
 }
 
 USTRUCT(BlueprintType)
-struct FFactCheck
+struct TAGFACTS_API FFactCheck
 {
 	GENERATED_BODY()
 
@@ -66,4 +66,6 @@ struct FFactCheck
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fact", meta = (EditCondition="Type == EFactType::Value", EditConditionHides))
 	int32 ValueToCompare = 0;
+
+	bool Evaluate();
 };

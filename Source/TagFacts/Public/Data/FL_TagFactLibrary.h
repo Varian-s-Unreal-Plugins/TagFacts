@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CoreTagFactData.h"
-#include "..\Core\FactSubSystem.h"
+#include "GameplayTagContainer.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "FL_TagFactLibrary.generated.h"
 
@@ -14,6 +14,8 @@ UCLASS()
 class TAGFACTS_API UFL_TagFactLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
+	
+public:
 
 	/**Compare a facts value against @Value using the selected comparator.
 	 * If the @Comparator is set to @IsTrue or @IsFalse, the value is ignored. */

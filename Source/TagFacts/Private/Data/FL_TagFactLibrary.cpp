@@ -2,6 +2,8 @@
 
 #include "Data/FL_TagFactLibrary.h"
 
+#include "Core/FactSubSystem.h"
+
 bool UFL_TagFactLibrary::CompareFact(FGameplayTag Fact, TEnumAsByte<EFactComparator> Comparator, int32 Value)
 {
 	int32 FactValue = UFactSubSystem::GetFactValue(Fact);
