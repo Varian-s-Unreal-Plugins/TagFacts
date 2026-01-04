@@ -33,7 +33,17 @@
 			"Optional": true
 		},
 		{
-			"Name": "HermesCommunications",
+			"Name": "AsyncMessageSystem",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "OmniToolbox",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "SlateIM",
 			"Enabled": true,
 			"Optional": true
 		}

@@ -18,7 +18,6 @@ enum EFactComparator
 	IsFalse
 };
 
-//V: This is unused, remove this?
 UENUM()
 enum EFactType
 {

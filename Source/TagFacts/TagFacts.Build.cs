@@ -34,7 +34,6 @@ public class TagFacts : ModuleRules
 			PublicDefinitions.Add("COG_INSTALLED=0");
 		}
 		
-		//Check if the Hermes plugin exists
 		if(Plugins.GetPlugin("AsyncMessageSystem") != null)
 		{
 			PublicDefinitions.Add("AsyncMessageSystem_Enabled=1");
@@ -64,6 +63,8 @@ public class TagFacts : ModuleRules
 			{
 				"Core",
 				"GameplayTags",
+				"OmniToolboxSlateIM",
+				"SlateIM"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -75,7 +76,7 @@ public class TagFacts : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Data/CoreTagFactData.h"
+#if OmniDebugger
+#include "CommandBar/OmniCommandBar.h"
+#endif
 #include "FactSubSystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFactAdded, FFact, NewFact);
@@ -111,3 +114,29 @@ public:
 
 #endif
 };
+
+#if OmniDebugger
+class FSIMTagFacts : public FOmniDebugWindow
+{
+public:
+	FSIMTagFacts(const TCHAR* Command, const TCHAR* CommandHelp)
+		: FOmniDebugWindow(Command, CommandHelp)
+	{
+	}
+
+	virtual void Draw(float DeltaTime) override;
+
+	virtual void DrawWidget(float DeltaTime) override
+	{
+		if(!SlateIM::BeginViewportRoot("Test", GEngine->GameViewport))
+		{
+			SlateIM::EndRoot();
+			return;
+		}
+		Draw(DeltaTime);
+		SlateIM::EndRoot();
+	}	
+		
+	void ProcessGameplayTagNodeRecursive(TSharedPtr<FGameplayTagNode> Node, UFactSubSystem* FactSubSystem, bool HasParent);
+};
+#endif

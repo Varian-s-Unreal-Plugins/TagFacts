@@ -8,6 +8,7 @@
 #include "AsyncMessageWorldSubsystem.h"
 #endif
 #include "GameplayTagsManager.h"
+#include "OmniRuntimeMacros.h"
 #include "TagFacts.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -331,4 +332,139 @@ void UFactSubSystem::SetFact(const TArray<FString>& Args)
 	
 }
 
+#endif
+
+#if OmniDebugger
+
+Omni_RegisterDebugger(FSIMTagFacts, "Gameplay.TagFacts.Facts Control", "TagFacts.FactsControl", "Facts Control")
+
+void FSIMTagFacts::FSIMTagFacts::Draw(float DeltaTime)
+{
+	const UGameplayTagsManager& TagManager = UGameplayTagsManager::Get();
+	UFactSubSystem* FactSubSystem = UFactSubSystem::Get();
+	if(!FactSubSystem)
+	{
+		return;
+	}
+
+	//Fetch all tags
+	FGameplayTagContainer AllTags;
+	TagManager.RequestAllGameplayTags(AllTags, false);
+
+	//Identify root tags (no parent and no children)
+	TArray<FGameplayTag> RootTags;
+	for(const FGameplayTag& Tag : AllTags)
+	{
+		FString TagString = Tag.ToString();
+		if(!TagString.Contains(".")) // No parent (no dot in the tag name)
+		{
+			RootTags.Add(Tag);
+		}
+	}
+
+	//Sort the array alphabetically
+	RootTags.Sort([](const FGameplayTag& A, const FGameplayTag& B)
+	{
+		return A.ToString() < B.ToString();
+	});
+	
+	const FTableRowStyle* TableRowStyle = &FAppStyle::Get().GetWidgetStyle<FTableRowStyle>("TableView.AlternatingRow");
+	SlateIM::MinWidth(500.f);
+	SlateIM::MinHeight(300.f);
+	SlateIM::MaxHeight(300.f);
+	SlateIM::HAlign(HAlign_Right);
+	SlateIM::BeginTable(nullptr, TableRowStyle);
+	SlateIM::AddTableColumn(TEXT("Name"));
+
+	//Start recursively processing root tags and their children
+	if(RootTags.Num() > 0)
+	{
+		for(const FGameplayTag& RootTag : RootTags)
+		{
+			TSharedPtr<FGameplayTagNode> RootNode = TagManager.FindTagNode(RootTag);
+			if(RootNode.IsValid())
+			{
+				ProcessGameplayTagNodeRecursive(RootNode, FactSubSystem, false);
+			}
+		}
+	}
+	
+	SlateIM::EndTable();
+}
+
+void FSIMTagFacts::FSIMTagFacts::ProcessGameplayTagNodeRecursive(TSharedPtr<FGameplayTagNode> Node,
+	UFactSubSystem* FactSubSystem, bool HasParent)
+{
+	if(!Node.IsValid())
+	{
+		return;
+	}
+	
+	if(HasParent ? SlateIM::BeginTableRowChildren() : SlateIM::NextTableCell())
+	{
+		//Retrieve the tag
+		FGameplayTag CurrentTag = Node->GetCompleteTag();
+		if(!CurrentTag.IsValid())
+		{
+			if(HasParent)
+			{
+				SlateIM::EndTableRowChildren();
+			}
+			return;
+		}
+		FString CurrentTagString = CurrentTag.ToString();
+
+		//Create the tree
+		CurrentTagString.Split(".", nullptr, &CurrentTagString, ESearchCase::IgnoreCase, ESearchDir::FromEnd);
+		
+		SlateIM::BeginHorizontalStack();
+		SlateIM::Fill();
+		SlateIM::Text(*CurrentTagString);
+		SlateIM::HAlign(HAlign_Right);
+		if(SlateIM::Button(TEXT("-")))
+		{
+			FactSubSystem->DecrementFact(CurrentTag);
+		}
+		FString TagValue = FString::FromInt(FactSubSystem->GetFactValue(CurrentTag));
+		SlateIM::Text(*TagValue);
+		if(SlateIM::Button(TEXT("+")))
+		{
+			FactSubSystem->IncrementFact(CurrentTag);
+		}
+		SlateIM::EndHorizontalStack();
+		
+		TArray<TSharedPtr<FGameplayTagNode>>& ChildrenNodes = Node->GetChildTagNodes();
+		if(ChildrenNodes.IsEmpty())
+		{
+			if(HasParent)
+			{
+				SlateIM::EndTableRowChildren();
+			}
+			return;
+		}
+	
+		// if (SlateIM::BeginTableRowChildren())
+		// {
+		// 	
+		// }
+		// SlateIM::EndTableRowChildren();
+		
+		//Process children recursively
+		//Sort children alphabetically
+		ChildrenNodes.Sort([](const TSharedPtr<FGameplayTagNode>& A, const TSharedPtr<FGameplayTagNode>& B)
+		{
+			return A->GetSimpleTagName().ToString() < B->GetSimpleTagName().ToString();
+		});
+		
+		//Recursive call for each child
+		for (const TSharedPtr<FGameplayTagNode>& ChildNode : ChildrenNodes)
+		{
+			ProcessGameplayTagNodeRecursive(ChildNode, FactSubSystem, true);
+		}
+	}
+	if(HasParent)
+	{
+		SlateIM::EndTableRowChildren();
+	}
+}
 #endif
